@@ -1,5 +1,19 @@
 import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = { reactStrictMode: true };
-
-export default nextConfig;
+const config: NextConfig = {
+  serverExternalPackages: ["better-sqlite3"],
+  experimental: { cpus: 2, webpackMemoryOptimizations: true },
+  poweredByHeader: false,
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+        ],
+      },
+    ];
+  },
+};
+export default config;
