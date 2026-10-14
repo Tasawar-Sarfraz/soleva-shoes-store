@@ -1,0 +1,18 @@
+CREATE TABLE user (id TEXT PRIMARY KEY, name TEXT NOT NULL, email TEXT NOT NULL UNIQUE, email_verified INTEGER NOT NULL DEFAULT 0, image TEXT, role TEXT NOT NULL DEFAULT 'customer' CHECK(role IN ('customer','admin')), created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL);
+CREATE TABLE session (id TEXT PRIMARY KEY, token TEXT NOT NULL UNIQUE, user_id TEXT NOT NULL REFERENCES user(id) ON DELETE CASCADE, expires_at INTEGER NOT NULL, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, ip_address TEXT, user_agent TEXT);
+CREATE INDEX session_user ON session(user_id);
+CREATE TABLE account (id TEXT PRIMARY KEY, account_id TEXT NOT NULL, provider_id TEXT NOT NULL, user_id TEXT NOT NULL REFERENCES user(id) ON DELETE CASCADE, access_token TEXT, refresh_token TEXT, id_token TEXT, access_token_expires_at INTEGER, refresh_token_expires_at INTEGER, scope TEXT, password TEXT, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL);
+CREATE INDEX account_user ON account(user_id);
+CREATE TABLE verification (id TEXT PRIMARY KEY, identifier TEXT NOT NULL, value TEXT NOT NULL, expires_at INTEGER NOT NULL, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL);
+CREATE TABLE products (id TEXT PRIMARY KEY, slug TEXT NOT NULL UNIQUE, name TEXT NOT NULL, category TEXT NOT NULL CHECK(category IN ('Sneakers','Running','Casual','Formal','Boots')), description TEXT NOT NULL, materials TEXT NOT NULL, price INTEGER NOT NULL CHECK(price > 0), image TEXT NOT NULL, model TEXT NOT NULL, accent TEXT NOT NULL, active INTEGER NOT NULL DEFAULT 1, created_at INTEGER NOT NULL);
+CREATE TABLE variants (sku TEXT PRIMARY KEY, product_id TEXT NOT NULL REFERENCES products(id), size INTEGER NOT NULL, color TEXT NOT NULL, color_hex TEXT NOT NULL, stock INTEGER NOT NULL CHECK(stock >= 0));
+CREATE UNIQUE INDEX variant_combination ON variants(product_id,size,color);
+CREATE TABLE wishlists (user_id TEXT NOT NULL REFERENCES user(id) ON DELETE CASCADE, product_id TEXT NOT NULL REFERENCES products(id));
+CREATE UNIQUE INDEX wishlist_entry ON wishlists(user_id,product_id);
+CREATE TABLE addresses (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES user(id) ON DELETE CASCADE, label TEXT NOT NULL, recipient TEXT NOT NULL, line TEXT NOT NULL, city TEXT NOT NULL, postal TEXT NOT NULL, phone TEXT NOT NULL);
+CREATE TABLE orders (id TEXT PRIMARY KEY, user_id TEXT REFERENCES user(id), email TEXT NOT NULL, recipient TEXT NOT NULL, phone TEXT NOT NULL, line TEXT NOT NULL, city TEXT NOT NULL, postal TEXT NOT NULL, subtotal INTEGER NOT NULL, shipping INTEGER NOT NULL, total INTEGER NOT NULL, currency TEXT NOT NULL, payment TEXT NOT NULL DEFAULT 'cash-on-delivery', payment_status TEXT NOT NULL DEFAULT 'unpaid', status TEXT NOT NULL DEFAULT 'placed', idempotency_key TEXT NOT NULL UNIQUE, fingerprint TEXT NOT NULL, guest_hash TEXT NOT NULL, stock_restored INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL);
+CREATE INDEX orders_user ON orders(user_id);
+CREATE TABLE order_items (id TEXT PRIMARY KEY, order_id TEXT NOT NULL REFERENCES orders(id), sku TEXT NOT NULL REFERENCES variants(sku), product_name TEXT NOT NULL, image TEXT NOT NULL, size INTEGER NOT NULL, color TEXT NOT NULL, quantity INTEGER NOT NULL CHECK(quantity > 0), unit_price INTEGER NOT NULL);
+CREATE TABLE order_events (id TEXT PRIMARY KEY, order_id TEXT NOT NULL REFERENCES orders(id), status TEXT NOT NULL, created_at INTEGER NOT NULL);
+CREATE TABLE enquiries (id TEXT PRIMARY KEY, name TEXT NOT NULL, email TEXT NOT NULL, message TEXT NOT NULL, created_at INTEGER NOT NULL);
+CREATE TABLE settings (key TEXT PRIMARY KEY, value TEXT NOT NULL);

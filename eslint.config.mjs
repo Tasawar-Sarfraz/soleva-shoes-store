@@ -1,9 +1,25 @@
 import { defineConfig, globalIgnores } from "eslint/config";
-import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTypescript from "eslint-config-next/typescript";
-
+import js from "@eslint/js";
+import ts from "typescript-eslint";
+import hooks from "eslint-plugin-react-hooks";
+import next from "@next/eslint-plugin-next";
 export default defineConfig([
-  ...nextVitals,
-  ...nextTypescript,
-  globalIgnores([".next/**", "out/**", "node_modules/**", "next-env.d.ts"]),
+  js.configs.recommended,
+  ...ts.configs.recommended,
+  { files: ["src/**/*.{ts,tsx}"], ...hooks.configs.flat.recommended },
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    plugins: { "@next/next": next },
+    rules: {
+      ...next.configs.recommended.rules,
+      ...next.configs["core-web-vitals"].rules,
+    },
+  },
+  globalIgnores([
+    ".next/**",
+    "public/**",
+    "next-env.d.ts",
+    "playwright-report/**",
+    "test-results/**",
+  ]),
 ]);
