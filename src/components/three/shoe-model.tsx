@@ -22,22 +22,30 @@ function soleShape() {
   shape.bezierCurveTo(-1.62, -0.12, -1.63, 0, -1.54, 0.07);
   return shape;
 }
-function upperGeometry(category: string) {
+function upperGeometry(category: string, designIndex: number) {
   const boot = category === "Boots",
     formal = category === "Formal",
     casual = category === "Casual";
+  const style = ((designIndex % 6) + 6) % 6;
+  const bootHeights = [1.65, 1.88, 1.5, 1.72, 1.96, 1.57];
+  const heelHeight = boot
+    ? bootHeights[style]
+    : (formal ? 0.82 : casual ? 0.7 : 0.82) +
+      [0, 0.15, -0.08, 0.05, 0.2, -0.03][style];
+  const vampHeight = (formal ? 0.53 : casual ? 0.7 : 0.7) +
+    [0, 0.03, -0.1, 0.08, -0.02, 0.04][style];
   const points = [
     [-1.55, 0.4, 0.05],
-    [-1.4, 0.78, 0.25],
-    [-1.15, boot ? 1.65 : 0.82, 0.29],
-    [-0.88, boot ? 1.62 : 0.78, 0.3],
-    [-0.65, boot ? 1.15 : formal ? 0.64 : casual ? 0.7 : 0.88, 0.32],
-    [-0.3, formal ? 0.53 : 0.7, 0.36],
-    [0.15, formal ? 0.42 : 0.52, 0.39],
-    [0.7, 0.35, 0.4],
-    [1.1, 0.29, 0.31],
+    [-1.4, heelHeight - 0.04, 0.25],
+    [-1.15, heelHeight, 0.29],
+    [-0.88, heelHeight - 0.04, 0.3],
+    [-0.65, boot ? heelHeight - 0.5 : formal ? heelHeight - 0.18 : heelHeight + 0.06, 0.32],
+    [-0.3, vampHeight, 0.36],
+    [0.15, vampHeight - 0.11, 0.39],
+    [0.7, vampHeight - 0.17, 0.4],
+    [1.1, 0.29 + [0, 0, 0.06, -0.02, 0.03, -0.04][style], 0.31],
     [1.4, 0.2, 0.2],
-    [1.54, 0.11, 0.035],
+    [1.54 + (style === 1 ? 0.05 : style === 5 ? -0.04 : 0), 0.11, 0.035],
   ];
   const curve = new CatmullRomCurve3(
     points.map((p) => new Vector3(...(p as [number, number, number]))),
@@ -99,17 +107,23 @@ function weaveTexture() {
 export function ShoeModel({
   category = "Sneakers",
   color = "#dfe2d1",
+  designIndex = 0,
   explode = 0,
   monogram,
   onPart,
 }: {
   category?: string;
   color?: string;
+  designIndex?: number;
   explode?: number;
   monogram?: React.ReactNode;
   onPart?: (part: string) => void;
 }) {
-  const upper = useMemo(() => upperGeometry(category), [category]);
+  const style = ((designIndex % 6) + 6) % 6;
+  const upper = useMemo(
+    () => upperGeometry(category, style),
+    [category, style],
+  );
   const sole = useMemo(
     () =>
       new ExtrudeGeometry(soleShape(), {
@@ -125,7 +139,7 @@ export function ShoeModel({
   const texture = useMemo(() => weaveTexture(), []);
   const laces = useMemo(
     () =>
-      Array.from({ length: 5 }, (_, i) => {
+      Array.from({ length: style === 5 ? 3 : 5 }, (_, i) => {
         const x = -0.67 + i * 0.16,
           y =
             (category === "Formal"
@@ -146,7 +160,7 @@ export function ShoeModel({
           false,
         );
       }),
-    [category],
+    [category, style],
   );
   const sideCurves = useMemo(
     () =>
@@ -179,7 +193,11 @@ export function ShoeModel({
     },
     [texture, upper, sole, laces, sideCurves],
   );
-  const collarHeight = category === "Boots" ? 1.64 : 0.82;
+  const collarHeight =
+    category === "Boots"
+      ? [1.64, 1.87, 1.49, 1.71, 1.95, 1.56][style]
+      : (category === "Formal" ? 0.82 : category === "Casual" ? 0.7 : 0.82) +
+        [0, 0.15, -0.08, 0.05, 0.2, -0.03][style];
   return (
     <group rotation={[0, 0, -0.04]}>
       <group
@@ -217,11 +235,45 @@ export function ShoeModel({
           sideCurves.map((geometry, i) => (
             <mesh key={i} geometry={geometry}>
               <meshStandardMaterial
-                color={category === "Running" ? "#afd359" : "#7f926a"}
+                color={
+                  style === 1
+                    ? "#bd765e"
+                    : style === 4
+                      ? "#6d87aa"
+                      : category === "Running"
+                        ? "#afd359"
+                        : "#7f926a"
+                }
                 roughness={0.8}
               />
             </mesh>
           ))}
+        {(style === 2 || style === 5) && (
+          <RoundedBox
+            args={[style === 2 ? 0.42 : 0.34, 0.11, 0.74]}
+            radius={0.035}
+            position={style === 2 ? [-0.18, 0.57, 0] : [-0.51, 0.68, 0]}
+            rotation={[0, 0, -0.08]}
+          >
+            <meshStandardMaterial
+              color={style === 5 ? "#b79a69" : color}
+              roughness={category === "Formal" ? 0.48 : 0.75}
+            />
+          </RoundedBox>
+        )}
+        {style === 3 && (
+          <RoundedBox
+            args={[0.62, 0.09, 0.53]}
+            radius={0.045}
+            position={[0.84, 0.23, 0]}
+            rotation={[0, 0, 0.08]}
+          >
+            <meshStandardMaterial
+              color={category === "Formal" ? "#9e795b" : "#e4e0d4"}
+              roughness={0.62}
+            />
+          </RoundedBox>
+        )}
         <RoundedBox
           args={[0.18, 0.38, 0.05]}
           radius={0.02}
@@ -270,11 +322,12 @@ export function ShoeModel({
           onPart?.("laces");
         }}
       >
-        {laces.map((geometry, i) => (
-          <mesh key={i} geometry={geometry} castShadow>
-            <meshStandardMaterial color="#f9f7ed" roughness={0.8} />
-          </mesh>
-        ))}
+        {style !== 2 &&
+          laces.map((geometry, i) => (
+            <mesh key={i} geometry={geometry} castShadow>
+              <meshStandardMaterial color="#f9f7ed" roughness={0.8} />
+            </mesh>
+          ))}
       </group>
       {monogram}
     </group>

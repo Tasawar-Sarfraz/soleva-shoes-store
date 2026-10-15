@@ -8,18 +8,20 @@ import {
 import { join } from "node:path";
 import { sampleCatalogue } from "../src/lib/catalogue";
 import { shoeArtwork } from "../src/lib/artwork";
+import { shoeDesignIndex } from "../src/lib/shoe-design";
 mkdirSync("public/products", { recursive: true });
 for (const product of sampleCatalogue()) {
+  const designIndex = shoeDesignIndex(product.id);
   writeFileSync(
     `public/products/${product.id}.svg`,
-    shoeArtwork(product.category, product.accent),
+    shoeArtwork(product.category, product.accent, false, designIndex),
   );
   for (const [index, color] of [
     ...new Map(product.variants.map((v) => [v.color, v.colorHex])).values(),
   ].entries()) {
     writeFileSync(
       `public/products/${product.id}-${index}.svg`,
-      shoeArtwork(product.category, color),
+      shoeArtwork(product.category, color, false, designIndex),
     );
   }
 }

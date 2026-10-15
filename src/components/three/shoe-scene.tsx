@@ -13,6 +13,7 @@ type Props = {
   active?: boolean;
   explode?: number;
   rotation?: number;
+  designIndex?: number;
   monogram?: React.ReactNode;
   onPart?: (part: string) => void;
   onReady?: () => void;
@@ -82,6 +83,7 @@ function ObjectScene(props: Props) {
         <ShoeModel
           category={props.category}
           color={props.color}
+          designIndex={props.designIndex}
           explode={props.explode}
           monogram={props.monogram}
           onPart={props.onPart}

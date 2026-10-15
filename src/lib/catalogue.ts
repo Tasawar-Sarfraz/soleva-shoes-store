@@ -1,4 +1,5 @@
 import type { Product, StoreSettings } from "./types";
+import { shoeDesignIndex } from "./shoe-design";
 export const defaultSettings: StoreSettings = {
   currency: "PKR",
   language: "en-PK",
@@ -19,8 +20,8 @@ const groups = [
     count: 30,
     names: ["Arc", "Orbit", "Frame", "Flux", "Axis", "Contour"],
     price: 1180000,
-    colors: ["Chalk", "Graphite"],
-    hex: ["#e8e3d4", "#383a35"],
+    colors: ["Chalk", "Graphite", "Cloud Blue", "Terracotta", "Moss", "Butter"],
+    hex: ["#e8e3d4", "#383a35", "#8da9bc", "#bf765f", "#758466", "#eacb75"],
     materials:
       "Woven textile upper, synthetic overlays, foam midsole and rubber outsole.",
   },
@@ -29,8 +30,8 @@ const groups = [
     count: 25,
     names: ["Pace", "Stride", "Tempo", "Kinetic", "Circuit"],
     price: 1320000,
-    colors: ["Mist", "Lime"],
-    hex: ["#bdc9c7", "#c8ed70"],
+    colors: ["Mist", "Lime", "Cobalt", "Coral", "Ice", "Midnight"],
+    hex: ["#bdc9c7", "#c8ed70", "#5277b8", "#e97963", "#e9edf0", "#333c59"],
     materials:
       "Open-weave textile upper, soft foam midsole and segmented rubber outsole. This sample design has no validated performance claims.",
   },
@@ -39,8 +40,8 @@ const groups = [
     count: 20,
     names: ["Daybreak", "Still", "Studio", "Ease"],
     price: 820000,
-    colors: ["Sand", "Clay"],
-    hex: ["#d5c4ac", "#a5735d"],
+    colors: ["Sand", "Clay", "Sage", "Denim", "Ochre", "Rose"],
+    hex: ["#d5c4ac", "#a5735d", "#819078", "#617b91", "#c18b43", "#c78283"],
     materials: "Canvas upper, textile lining and moulded rubber cupsole.",
   },
   {
@@ -48,8 +49,8 @@ const groups = [
     count: 15,
     names: ["Ledger", "Edition", "Chapter"],
     price: 1490000,
-    colors: ["Espresso", "Black"],
-    hex: ["#664839", "#292824"],
+    colors: ["Espresso", "Black", "Burgundy", "Cognac", "Stone", "Navy"],
+    hex: ["#664839", "#292824", "#733c4a", "#a26336", "#aba69a", "#343f54"],
     materials:
       "Illustrative leather-look upper, textile lining and stacked rubber heel. Material is synthetic in this fictional catalogue.",
   },
@@ -58,8 +59,8 @@ const groups = [
     count: 10,
     names: ["Terrain", "Summit"],
     price: 1790000,
-    colors: ["Umber", "Slate"],
-    hex: ["#91754f", "#666f72"],
+    colors: ["Umber", "Slate", "Forest", "Rust", "Honey", "Charcoal"],
+    hex: ["#91754f", "#666f72", "#52614b", "#a35940", "#bd9a5c", "#41413d"],
     materials:
       "Synthetic leather-look high upper, padded textile collar and lugged rubber sole.",
   },
@@ -80,7 +81,7 @@ export function sampleCatalogue(): Product[] {
         price: group.price + i * 12500,
         image: `/products/${id}.svg`,
         model: group.category.toLowerCase(),
-        accent: group.hex[0],
+        accent: group.hex[shoeDesignIndex(id)],
         active: true,
         createdAt: 1750000000000 + i,
         variants: group.colors.flatMap((color, c) =>

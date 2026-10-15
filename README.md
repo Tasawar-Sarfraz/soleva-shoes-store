@@ -16,6 +16,8 @@ npm run dev
 
 4. Open `http://localhost:3000` in your own browser. The catalogue, cash-on-delivery checkout and all local experiences require no hosted database account or external API key.
 
+The development server uses Webpack instead of Turbopack to avoid Turbopack's SST persistence allocation failures on memory-constrained machines. The seeded sample catalogue remains exactly 100 products.
+
 `setup` generates a fresh cryptographically random secret in a new `.env`, copies local engine/font assets, applies versioned migrations and seeds the catalogue. It preserves existing configuration values, fills only a missing or empty development-secret slot, and keeps existing passwords, inventory, user data and seeded products intact. If you already have configuration, preserve it and ensure `BETTER_AUTH_SECRET` has at least 32 random characters. Back up the database before changing schema or data.
 
 ### Local demonstration accounts
@@ -62,14 +64,14 @@ All essential artwork, fonts, procedural model code and fallback graphics are lo
 
 | Experience | Technology | Behaviour |
 | --- | --- | --- |
-| Hero / design viewer | Three.js, React Three Fiber, Drei | Procedural category silhouettes, controlled hero motion, orbit controls, material hotspots, HTML construction notes, exploded layers, preview colours and monograms |
+| Hero / design viewer | Three.js, React Three Fiber, Drei | Six product-specific procedural design variations per category, six genuine colour variants per sample product, controlled hero motion, orbit controls, material hotspots, HTML construction notes, exploded layers, preview colours and monograms |
 | Sole Lab | Babylon.js | Isolated three-layer cross-section and illustrative flex slider; no scientific performance claims |
 | Virtual showroom | A-Frame | On-demand same-origin iframe with clickable exhibits and HTML, keyboard, mouse and touch alternatives; WebXR starts only after the explicit immersive-mode button |
 | Store explorer | CesiumJS | Local basic ellipsoid globe, original outline and three fictional showroom pins; no token or external imagery; all Workers, Assets, Widgets and ThirdParty paths are copied to `public/cesium` |
 | Brand exhibit | Spline integration slot | **No licensed Spline scene is bundled.** Original local R3F fallback works; an optional genuine scene can be configured |
 | Monogram placement | gl-matrix | Separate tested vector and transform calculations used by the design preview |
 
-`ExperienceHub` owns one modal experience. Opening it unmounts the hero renderer; closing/switching or navigating unmounts the active secondary engine. Babylon, A-Frame, Cesium and Spline are dynamically loaded only when selected. Canvas rendering pauses on hidden tabs; observers, context listeners, loops and engines are disposed. Device pixel ratio is capped; “Reduce effects,” system reduced motion and quality preferences keep shopping usable on ordinary devices. HTML explanations, controls and illustrations work without WebGL.
+`ExperienceHub` owns one modal experience. Opening it unmounts the hero renderer; closing/switching or navigating unmounts the active secondary engine. Babylon, A-Frame, Cesium and Spline are dynamically loaded only when selected. Canvas rendering pauses on hidden tabs; observers, context listeners, loops and engines are disposed. Device pixel ratio is capped; “Reduce effects,” system reduced motion and quality preferences keep shopping usable on ordinary devices. HTML explanations, controls and illustrations work without WebGL. Re-run `npm run db:seed` after an update to add new colour/size variants to an existing local catalogue; existing stock and order records are preserved.
 
 ### Optional Spline asset
 

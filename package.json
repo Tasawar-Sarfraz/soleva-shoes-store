@@ -7,7 +7,7 @@
     "node": ">=24 <25"
   },
   "scripts": {
-    "dev": "next dev --hostname localhost",
+    "dev": "next dev --webpack --hostname localhost",
     "build": "next build --webpack",
     "start": "next start --hostname localhost",
     "typecheck": "tsc --noEmit",

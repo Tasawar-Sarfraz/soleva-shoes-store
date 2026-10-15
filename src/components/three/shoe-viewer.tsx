@@ -6,6 +6,7 @@ import type { Product } from "@/lib/types";
 import { useShopping } from "@/lib/client-store";
 import { useVisibleScene, useWebGL } from "./webgl";
 import { monogramTransform } from "@/lib/design-math";
+import { shoeDesignIndex } from "@/lib/shoe-design";
 const ShoeScene = dynamic(() => import("./shoe-scene"), { ssr: false });
 const Label = dynamic(() => import("./monogram"), { ssr: false });
 const notes: Record<string, string> = {
@@ -41,6 +42,7 @@ export default function ShoeViewer({ product }: { product: Product }) {
           <ShoeScene
             category={product.category}
             color={color}
+            designIndex={shoeDesignIndex(product.id)}
             active={active}
             explode={exploded ? 1 : 0}
             rotation={(angle * Math.PI) / 180}

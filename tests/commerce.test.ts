@@ -6,9 +6,11 @@ import { randomUUID, randomBytes } from "node:crypto";
 import { spawn } from "node:child_process";
 import { eq } from "drizzle-orm";
 import { sampleCatalogue } from "../src/lib/catalogue";
+import { shoeArtwork } from "../src/lib/artwork";
 import { filterProducts } from "../src/lib/filter";
 import { monogramTransform } from "../src/lib/design-math";
 import { money } from "../src/lib/format";
+import { shoeDesignIndex } from "../src/lib/shoe-design";
 import { variants, products, user, orders } from "../src/server/schema";
 let database: typeof import("../src/server/db");
 let store: typeof import("../src/server/store");
@@ -83,10 +85,20 @@ describe("catalogue and genuine variants", () => {
     expect(
       catalogue.every(
         (p) =>
-          new Set(p.variants.map((v) => v.color)).size >= 2 &&
+          new Set(p.variants.map((v) => v.color)).size === 6 &&
           Number.isInteger(p.price),
       ),
     ).toBe(true);
+    for (const category of ["Sneakers", "Running", "Casual", "Formal", "Boots"]) {
+      const designs = catalogue.filter((product) => product.category === category);
+      expect(new Set(designs.map((product) => product.accent)).size).toBeGreaterThan(1);
+      expect(new Set(designs.slice(0, 6).map((product) => shoeDesignIndex(product.id)))).toEqual(
+        new Set([0, 1, 2, 3, 4, 5]),
+      );
+    }
+    expect(shoeArtwork("Formal", "#664839", false, 0)).not.toBe(
+      shoeArtwork("Formal", "#664839", false, 1),
+    );
   });
   it("filters size and colour against the same genuine SKU", () => {
     const catalogue = sampleCatalogue();
@@ -306,6 +318,13 @@ describe("ownership, cancellation and administration", () => {
       database.db.select().from(variants).where(eq(variants.sku, sku)).get()!
         .stock,
     ).toBe(6);
+    expect(
+      database.db
+        .select()
+        .from(variants)
+        .where(eq(variants.sku, "sneakers-01-40-5"))
+        .get()!.color,
+    ).toBe("Butter");
     expect(store.getOrder(result.id, null, result.access).id).toBe(result.id);
   });
 });
